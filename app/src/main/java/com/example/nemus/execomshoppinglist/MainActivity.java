@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView slView;
     private ArrayAdapter<String> slAdapter;
     private EditText listNameEditText, listAmountEditText;
-
+    private ShoppingListAdapter listAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,13 +111,17 @@ public class MainActivity extends AppCompatActivity {
     private void updateUI(){
        ArrayList<String> taskList = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.query(ShoppingListTable.TABLE_NAME,
+       /* Cursor cursor = db.query(ShoppingListTable.TABLE_NAME,
                                 new String[] {ShoppingListTable.COLUMN_NAME, ShoppingListTable.COLUMN_AMOUNT},
-                                         null, null, null, null, null);
+                                         null, null, null, null, null); */
+
+        Cursor cursor = db.rawQuery("SELECT * FROM shoppinglist", null);
 
         while(cursor.moveToNext()){
-            int index = cursor.getColumnIndex(ShoppingListTable.COLUMN_NAME);
-            taskList.add(cursor.getString(index));
+            int nameIndex = cursor.getColumnIndex(ShoppingListTable.COLUMN_NAME);
+            int amountIndex = cursor.getColumnIndex(ShoppingListTable.COLUMN_AMOUNT);
+            taskList.add(cursor.getString(nameIndex));
+            taskList.add(cursor.getString(amountIndex));
         }
 
         if(slAdapter == null){
@@ -128,7 +132,15 @@ public class MainActivity extends AppCompatActivity {
             slAdapter.addAll(taskList);
             slAdapter.notifyDataSetChanged();
         }
+        /*
+      if(listAdapter == null){
+          listAdapter = new ShoppingListAdapter(this, listCursor);
+          slView.setAdapter(listAdapter);
+      }else{
+          listAdapter.notifyDataSetChanged();
+      }
 
+      */
         cursor.close();
         db.close();
     }
